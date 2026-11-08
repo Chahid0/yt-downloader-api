@@ -13,15 +13,12 @@ import os
 import threading
 
 app = Flask(__name__)
-CORS(app)  # وأضف هذا السطر لإعطاء التصريح لجميع المواقع
+CORS(app, resources={r"/*": {"origins": "*"}})  # وأضف هذا السطر لإعطاء التصريح لجميع المواقع
 
 # ---------------- إعدادات ----------------
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_FOLDER = os.path.join(APP_DIR, "downloads")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-
-app = Flask(__name__)
-CORS(app)
 
 # قاموس في الذاكرة لتتبع نسبة التحميل (مفتاحه task_id)
 download_progress = {}

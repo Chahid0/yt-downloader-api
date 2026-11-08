@@ -8,8 +8,6 @@ import re
 import uuid
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS  # أضف هذا السطر
-import yt_dlp
-import os
 import threading
 
 app = Flask(__name__)

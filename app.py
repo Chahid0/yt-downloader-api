@@ -136,12 +136,13 @@ def download_video():
     # رابط مباشر -> استخدمه كما هو ; عبارة بحث -> بحث يوتيوب (yt-dlp)
     target_url = url if URL_PATTERN.match(url) else f"ytsearch:{url}"
 
-    ydl_opts = {
-        "outtmpl": os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s"),
-        "quiet": True,
-        "noplaylist": True,
-        "progress_hooks": [progress_hook(task_id)],
-    }
+  ydl_opts = {
+    "outtmpl": os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s"),
+    "quiet": True,
+    "noplaylist": True,
+    "progress_hooks": [progress_hook(task_id)],
+    "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),  # هذا هو السطر السحري الجديد
+}
     ydl_opts.update(format_options(format_type))
 
     try:

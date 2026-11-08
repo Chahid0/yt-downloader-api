@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحميل من جميع المنصات</title>
+    <style>
+        :root {
+            --orange: #fb923c;
+            --orange-dark: #ea580c;
+            --purple: #a855f7;
+            --purple-dark: #9333ea;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --card-bg: #ffffff;
+            --bg: #f8fafc;
+            --border: #e5e7eb;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --shadow: 0 20px 40px rgba(0,0,0,0.06);
+        }
+
+        [data-theme="dark"] {
+            --ink: #f3f4f6;
+            --muted: #9ca3af;
+            --card-bg: #1f2937;
+            --bg: #111827;
+            --border: #374151;
+            --shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif; }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 24px 20px 40px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* ---------- رأس الصفحة ---------- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 640px;
+            margin: 0 auto 28px;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--orange), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 14px;
+            color: var(--ink);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .theme-toggle:hover { border-color: var(--orange); color: var(--orange-dark); }
+
+        /* ---------- البطاقة الرئيسية ---------- */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 32px 26px 24px;
+            box-shadow: var(--shadow);
+            max-width: 640px;
+            margin: 0 auto;
+            transition: background 0.3s, border-color 0.3s;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .card .lead {
+            color: var(--muted);
+            font-size: 13.5px;
+            text-align: center;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        /* ---------- حقول الإدخال ---------- */
+        .input-group { margin-bottom: 16px; text-align: right; }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13.5px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: var(--card-bg);
+            color: var(--ink);
+            font-size: 14.5px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(168,85,247,0.12);
+        }
+
+        .input-hint {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* ---------- الأزرار ---------- */
+        button.primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--orange), var(--purple));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 22px rgba(251,146,60,0.35);
+        }
+
+        button.primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(251,146,60,0.5);
+            filter: brightness(1.05);
+        }
+
+        button.primary:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.ghost {
+            width: 100%;
+            padding: 11px;
+            margin-top: 10px;
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--ink);
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.ghost:hover { border-color: var(--orange); color: var(--orange-dark); }
+
+        /* ---------- شريط التقدم ---------- */
+        .progress-wrap { margin-top: 20px; }
+
+        .progress-bg {
+            width: 100%;
+            height: 9px;
+            background: #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        [data-theme="dark"] .progress-bg { background: #374151; }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--orange), var(--purple));
+            width: 0%;
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            margin-top: 12px;
+            font-size: 12.5px;
+            min-height: 18px;
+            text-align: center;
+        }
+
+        .status.ok { color: var(--success); font-weight: 700; }
+        .status.err { color: var(--danger); font-weight: 700; }
+        .status.info { color: var(--muted); }
+
+        /* ---------- أيقونات المنصات في الأسفل ---------- */
+        .platforms {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .plat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            width: 78px;
+            padding: 10px 6px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.25s;
+            color: var(--muted);
+            font-size: 11.5px;
+            font-weight: 700;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .plat:hover {
+            background: rgba(251,146,60,0.06);
+            color: var(--orange-dark);
+        }
+
+        [data-theme="dark"] .plat:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--orange);
+        }
+
+        .plat.selected {
+            background: #fdf4ff;
+            border-color: var(--purple);
+            color: var(--purple-dark);
+        }
+
+        [data-theme="dark"] .plat.selected {
+            background: #5b21b6;
+            color: var(--purple);
+        }
+
+        .plat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #f3f4f6;
+        }
+
+        [data-theme="dark"] .plat-icon { background: #374151; }
+
+        /* ---------- التذييل ---------- */
+        .footer {
+            max-width: 640px;
+            margin: 24px auto 0;
+            padding: 16px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 700;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 480px) {
+            body { padding: 16px 12px 32px; }
+            .card { padding: 24px 18px 20px; }
+            header { margin-bottom: 20px; }
+            .plat { width: 68px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">تحميل<span style="color:var(--ink);"> now</span></div>
+    <button class="theme-toggle" id="themeToggle">☀️ / 🌙</button>
+</header>
+
+<div class="card">
+    <h2>تحميل جديد</h2>
+    <p class="lead">أضف رابط الفيديو من أي منصة مدعومة، حدد الصيغة، ثم اضغط بدء التحميل.</p>
+
+    <div class="input-group">
+        <label for="mediaUrl">رابط الفيديو</label>
+        <input type="text" id="mediaUrl" placeholder="https://...">
+        <div class="input-hint">يدعم يوتيوب، إنستقرام، تيك توك، فيسبوك وأكثر من 1000 منصة</div>
+    </div>
+
+    <div class="input-group">
+        <label for="mediaFormat">الصيغة والجودة</label>
+        <select id="mediaFormat">
+            <option value="mp3">صوت فقط (MP3 - 192kbps)</option>
+            <option value="mp4_high">فيديو (MP4 - جودة عالية)</option>
+            <option value="mp4_low">فيديو (MP4 - جودة متوسطة)</option>
+        </select>
+    </div>
+
+    <button class="primary" id="downloadBtn">بدء التحميل</button>
+    <button class="ghost" id="clearBtn">مسح الحقول</button>
+
+    <div class="progress-wrap">
+        <div class="progress-bg">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="status info" id="statusText">جاهز للتحميل</div>
+    </div>
+
+    <!-- أيقونات المنصات في الأسفل -->
+    <div class="platforms">
+        <div class="plat selected" data-plat="الكل" onclick="selectPlat(this, 'الكل')">
+            <div class="plat-icon">🌐</div>
+            <div>الكل</div>
+        </div>
+        <div class="plat" data-plat="اليوتيوب" onclick="selectPlat(this, 'اليوتيوب')">
+            <div class="plat-icon" style="background:#ffebee;">▶</div>
+            <div>يوتيوب</div>
+        </div>
+        <div class="plat" data-plat="انستقرام" onclick="selectPlat(this, 'انستقرام')">
+            <div class="plat-icon" style="background:#fce7f3;">📸</div>
+            <div>إنستقرام</div>
+        </div>
+        <div class="plat" data-plat="تيك توك" onclick="selectPlat(this, 'تيك توك')">
+            <div class="plat-icon" style="background:#e5e7eb;">♫</div>
+            <div>تيك توك</div>
+        </div>
+        <div class="plat" data-plat="فيسبوك" onclick="selectPlat(this, 'فيسبوك')">
+            <div class="plat-icon" style="background:#dbeafe;">f</div>
+            <div>فيسبوك</div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    جميع الحقوق محفوظة 2026 Div By CHAHiD
+</div>
+
+<script>
+    const API = 'https://yt-downloader-api-uimz.onrender.com';
+
+    // التبديل بين الوضع الليلي والنهاري
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    themeToggle.addEventListener('click', () => {
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        themeToggle.textContent = isDark ? '☀️ / 🌙' : '🌙 / ☀️';
+    });
+
+    // اختيار منصة
+    function selectPlat(el, platform) {
+        document.querySelectorAll('.plat').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        const input = document.getElementById('mediaUrl');
+        if (input) {
+            input.placeholder = (platform === 'الكل') ? 'https://...' : `رابط من ${platform}...`;
+            input.focus();
+        }
+    }
+
+    // مسح الحقول
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        document.getElementById('mediaUrl').value = '';
+        document.getElementById('statusText').textContent = 'جاهز للتحميل';
+        document.getElementById('statusText').className = 'status info';
+        document.getElementById('progressBar').style.width = '0%';
+    });
+
+    // بدء التحميل
+    document.getElementById('downloadBtn').addEventListener('click', async function() {
+        const urlInput = document.getElementById('mediaUrl').value.trim();
+        const formatInput = document.getElementById('mediaFormat').value;
+        const statusText = document.getElementById('statusText');
+        const progressBar = document.getElementById('progressBar');
+        const btn = this;
+
+        if (!urlInput) {
+            statusText.textContent = 'الرجاء إدخال رابط الفيديو.';
+            statusText.className = 'status err';
+            return;
+        }
+
+        const taskId = Math.random().toString(36).substring(2, 15);
+
+        statusText.textContent = 'جاري التحضير...';
+        statusText.className = 'status info';
+        progressBar.style.width = '0%';
+        btn.disabled = true;
+
+        let polling = setInterval(async () => {
+            try {
+                const res = await fetch(`${API}/progress/${taskId}`);
+                const data = await res.json();
+                const pctStr = String(data.progress || '0%').replace(/[^0-9.]/g, '');
+                const pct = parseFloat(pctStr);
+                if (!isNaN(pct)) {
+                    progressBar.style.width = pct + '%';
+                }
+            } catch (e) { console.log('خطأ في جلب التقدم'); }
+        }, 1000);
+
+        try {
+            const response = await fetch(`${API}/download`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: urlInput, format: formatInput, task_id: taskId })
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                const ext = formatInput === 'mp3' ? '.mp3' : '.mp4';
+                a.download = `تحميل_${new Date().toLocaleDateString('ar-SA').replace(/\//g, '-')}${ext}`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                statusText.textContent = 'تم التحميل بنجاح!';
+                statusText.className = 'status ok';
+                progressBar.style.width = '100%';
+            } else {
+                const err = await response.json();
+                statusText.textContent = 'حدث خطأ: ' + (err.error || 'غير معروف');
+                statusText.className = 'status err';
+            }
+        } catch (error) {
+            statusText.textContent = 'فشل الاتصال بالخادم. تأكد من تشغيل البرنامج.';
+            statusText.className = 'status err';
+        } finally {
+            clearInterval(polling);
+            btn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>

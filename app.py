@@ -6,17 +6,19 @@
 import os
 import re
 import uuid
+import shutil
+import subprocess
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS  # أضف هذا السطر
-import threading
-import imageio_ffmpeg
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # وأضف هذا السطر لإعطاء التصريح لجميع المواقع
+from flask_cors import CORS
+import yt_dlp
 
 # ---------------- إعدادات ----------------
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_FOLDER = os.path.join(APP_DIR, "downloads")
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+app = Flask(__name__, static_folder=APP_DIR, static_url_path="")
+CORS(app)
 
 # قاموس في الذاكرة لتتبع نسبة التحميل (مفتاحه task_id)
 download_progress = {}
@@ -64,7 +66,35 @@ def format_options(format_type):
     return {"format": "best[ext=mp4]/best"}
 
 
+# ---------------- فحص FFmpeg ----------------
+def ffmpeg_available():
+    return shutil.which("ffmpeg") is not None
+
+def ffmpeg_version():
+    if not ffmpeg_available():
+        return None
+    try:
+        out = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True, timeout=10)
+        first = out.stdout.splitlines()[0] if out.stdout else ""
+        return first.strip()
+    except Exception:
+        return "unknown"
+
 # ---------------- نقاط النهاية ----------------
+@app.route("/", methods=["GET"])
+def index():
+    return send_file(os.path.join(APP_DIR, "index.html"))
+
+@app.route("/debug", methods=["GET"])
+def debug():
+    return jsonify({
+        "ffmpeg_available": ffmpeg_available(),
+        "ffmpeg_version": ffmpeg_version(),
+        "download_folder": DOWNLOAD_FOLDER,
+        "download_folder_exists": os.path.isdir(DOWNLOAD_FOLDER),
+    })
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"})
@@ -131,18 +161,25 @@ def download_video():
     if not url:
         return jsonify({"error": "الرابط مطلوب"}), 400
 
+    # التحقق من توفر FFmpeg للصيغ التي تتطلبه
+    needs_ffmpeg = format_type in ("mp3", "mp4_high")
+    if needs_ffmpeg and not ffmpeg_available():
+        return jsonify({
+            "error": "FFmpeg غير مثبت على الخادم. الصيغة المختارة تتطلب FFmpeg. "
+                     "استخدم 'فيديو (MP4 - جودة متوسطة)' أو ثبّت FFmpeg على الخادم."
+        }), 500
+
     download_progress[task_id] = "0%"
 
     # رابط مباشر -> استخدمه كما هو ; عبارة بحث -> بحث يوتيوب (yt-dlp)
     target_url = url if URL_PATTERN.match(url) else f"ytsearch:{url}"
 
-  ydl_opts = {
-    "outtmpl": os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s"),
-    "quiet": True,
-    "noplaylist": True,
-    "progress_hooks": [progress_hook(task_id)],
-    "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),  # هذا هو السطر السحري الجديد
-}
+    ydl_opts = {
+        "outtmpl": os.path.join(DOWNLOAD_FOLDER, "%(title)s.%(ext)s"),
+        "quiet": True,
+        "noplaylist": True,
+        "progress_hooks": [progress_hook(task_id)],
+    }
     ydl_opts.update(format_options(format_type))
 
     try:
@@ -163,7 +200,6 @@ def download_video():
         return jsonify({"error": str(e)}), 500
 
 
-if __name__ == '__main__':
-    # جلب المنفذ من الخادم السحابي، وإذا لم يوجد نستخدم 5000 مؤقتاً
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port, debug=False)

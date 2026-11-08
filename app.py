@@ -7,8 +7,13 @@ import os
 import re
 import uuid
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS
+from flask_cors import CORS  # أضف هذا السطر
 import yt_dlp
+import os
+import threading
+
+app = Flask(__name__)
+CORS(app)  # وأضف هذا السطر لإعطاء التصريح لجميع المواقع
 
 # ---------------- إعدادات ----------------
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
